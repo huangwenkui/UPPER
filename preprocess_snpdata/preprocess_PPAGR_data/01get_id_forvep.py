@@ -1,50 +1,45 @@
-#!/usr/bin python
-#-*- coding:utf-8 -*-
-import os
 import sys
-import argparse
-import collections
-import numpy as np
-#filename=check_and_download_hint()
-filename="reactome/reactome.homo_sapiens.interactions.tab-delimited.txt"
-fp=open(filename)
-head=next(fp)
-head_arr=head.strip().split("\t")
-head_mapping={k:i for i,k in enumerate(head_arr)}
-#["# Interactor 1 uniprot id","Interactor 1 Ensembl gene id","Interactor 1 Entrez Gene id","Interactor 2 uniprot id","Interactor 2 Ensembl gene id","Interactor 2 Entrez Gene id","Interaction type","Interaction context","Pubmed references"]
-outfilename="03data_graph/reactome.graph.tsv"
-outfp=open(outfilename,"w")
-count=0
+import os
+
+
+filename = sys.argv[1:][0]
+out_filename = "./PPARG/PPARG_for_vep.tsv"
+out_fp = open(out_filename,"w")
+map_filename = "./PPARG/PPARG_labelmap.txt"
+map_fp = open(map_filename,"w")
+
+fp = open(filename,"r")
+# head = next(fp)
+# head_arr = head.strip().split(",")
+# head_mapping= {el: i for i, el in enumerate(head_arr)}
+# chr10_14965046_A_C
+# 5   140532    140532    T/C   +
 for line in fp:
-    arr=line.strip().split("\t")
-    id1=head_mapping["Interactor 1 Ensembl gene id"]
-    el1=arr[id1]
-    id2=head_mapping["Interactor 2 Ensembl gene id"]
-    el2=arr[id2]
-    id3=head_mapping["Interaction type"]
-    el3=arr[id3]
-    if el1!="-" and el2!="-":
-        if el1 != el2:
-            outfp.write("\t".join([el1,el3,el2]))
-            count+=1
-            outfp.write("\n")
-    idu_1 = head_mapping["# Interactor 1 uniprot id"]
-    elu_1 = arr[idu_1]
-    idu_2 = head_mapping["Interactor 2 uniprot id"]
-    elu_2 = arr[idu_2]
-    if elu_1 != "-" and elu_2 != "-":
-        if elu_1 != elu_2:
-            outfp.write("\t".join([elu_1, el3, elu_2]))
-            count += 1
-            outfp.write("\n")
-    if el1 != "-" and elu_2 != "-":
-        if el1 != elu_2:
-            outfp.write("\t".join([el1, el3, elu_2]))
-            count += 1
-            outfp.write("\n")
-    if elu_1 != "-" and el2 != "-":
-        if elu_1 != el2:
-            outfp.write("\t".join([elu_1, el3, el2]))
-            count += 1
-            outfp.write("\n")
-print(count)
+    line_arr = line.strip().split()
+    chr = line_arr[1].strip("chr")
+    pos = line_arr[2]
+    alt = line_arr[4]+"/"+line_arr[5]
+    keyid_arr = [chr, pos, line_arr[4], line_arr[5]]
+    keyid="_".join(keyid_arr)
+    label = line_arr[7]
+    ad = "+"
+    out= [chr,pos,pos,alt,ad]
+    l= "\t".join(out)
+    out_fp.write(l)
+    out_fp.write("\n")
+
+    map = [keyid,label]
+    m="\t".join(map)
+    map_fp.write(m)
+    map_fp.write("\n")
+
+
+
+
+
+
+
+
+
+
+
